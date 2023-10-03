@@ -12,11 +12,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.*
 import com.google.firebase.ktx.Firebase
 import com.yandex.mapkit.MapKit
 import com.yandex.mapkit.MapKitFactory
@@ -42,6 +43,7 @@ import com.yandex.mapkit.search.*
 import ru.netology.yandexmaps.BuildConfig.MAPS_API_KEY
 
 
+@Suppress("UNUSED_EXPRESSION")
 class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.SearchListener,
     CameraListener, DrivingSession.DrivingRouteListener {
 
@@ -83,13 +85,13 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         mapview = findViewById(R.id.mapview)
-        var mapKit: MapKit = MapKitFactory.getInstance()
+        val mapKit: MapKit = MapKitFactory.getInstance()
         requstLocationPermission()
-        var probki = mapKit.createTrafficLayer(mapview.mapWindow)
+        val probki = mapKit.createTrafficLayer(mapview.mapWindow)
         probki.isTrafficVisible = false
         probkibut = findViewById(R.id.probkibut)
         probkibut.setOnClickListener {
-            if (probki.isTrafficVisible == false) {
+            if (!probki.isTrafficVisible) {
                 probki.isTrafficVisible = true
                 probkibut.setBackgroundResource(R.drawable.simpleblue)
             } else {
@@ -138,9 +140,9 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    var name = document.get("name").toString()
-                    var lat = document.get("lat").toString().toDouble()
-                    var lon = document.get("lon").toString().toDouble()
+                    val name = document.get("name").toString()
+                    val lat = document.get("lat").toString().toDouble()
+                    val lon = document.get("lon").toString().toDouble()
                     mapObjects!!.addPlacemark(Point(lat, lon))
                     list.add(Model(name, lat.toString(), lon.toString()))
                     adapter = MyListAdapter(this, R.layout.row, list)
@@ -157,7 +159,7 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
                     listview.setOnItemClickListener { parent, view, position, id ->
                         when (position) {
                             0 -> {
-                                ROUTE_END_LOCATION = Point(47.255556, 39.793932);
+                                ROUTE_END_LOCATION = Point(47.255556, 39.793932)
                                 SCREEN_CENTER = Point(
                                     (ROUTE_START_LOCATION.latitude + ROUTE_END_LOCATION.latitude) / 2,
                                     (ROUTE_START_LOCATION.longitude + ROUTE_END_LOCATION.longitude) / 2
@@ -260,12 +262,10 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
         val mapObjects: MapObjectCollection = mapview.map.mapObjects
         for (searchResult in response.collection.children) {
             val resultLocation = searchResult.obj!!.geometry[0].point!!
-            if (response != null) {
-                mapObjects.addPlacemark(
-                    resultLocation,
-                    ImageProvider.fromResource(this, R.drawable.search_result)
-                )
-            }
+            mapObjects.addPlacemark(
+                resultLocation,
+                ImageProvider.fromResource(this, R.drawable.search_result)
+            )
         }
     }
 
@@ -276,7 +276,7 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
         } else if (p0 is NetworkError) {
             errorMessage = "Проблема с интрнетом!"
         }
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+        makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
 
@@ -299,8 +299,8 @@ class MainActivity : AppCompatActivity(), UserLocationObjectListener,Session.Sea
     }
 
     override fun onDrivingRoutesError(p0: com.yandex.runtime.Error) {
-        var errorMessage = "Неизвестная ошибка!"
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT)
+        val errorMessage = "Неизвестная ошибка!"
+        makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     //Важная -----------------------------------------------------------------------
